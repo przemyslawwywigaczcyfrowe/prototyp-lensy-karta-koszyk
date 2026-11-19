@@ -3602,13 +3602,13 @@ window.addEventListener('load', function () {
   }
 
   /* WEJŚCIE WIERSZA (prośba Przemka 19.11.2026). Wiersz dokłada skrypt, więc bez animacji
-     treść pod nim przeskoczyłaby w dół jak po błędzie. Zamiast tego trzy kroki, które pokazują,
+     treść pod nim przeskoczyłaby w dół jak po błędzie. Zamiast tego dwa kroki, które pokazują,
      że sklep celowo dokłada nowy element:
      1. 0-450 ms: robi się miejsce. Wysokość wiersza rośnie od zera, treść poniżej
         (w karcie przycisk "Do koszyka", w koszyku "Odbiór w salonie" i niżej) zjeżdża płynnie.
      2. 250-650 ms: w tym miejscu wyłania się wiersz, lekko wsuwając się od lewej.
-     3. 600-1800 ms: delikatne podświetlenie wiersza w kolorze LensHero, które gaśnie.
-     Liczba Lensów od początku stoi na docelowej wartości.
+     Liczba Lensów od początku stoi na docelowej wartości, bez nabijania i bez podświetlenia
+     (decyzja Przemka 19.11.2026).
      Bez animacji (wiersz od razu na miejscu): prefers-reduced-motion i karta otwarta w tle. */
   var BEZ_RUCHU = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   var LAGODNIE = 'cubic-bezier(.25,.8,.25,1)';
@@ -3632,18 +3632,8 @@ window.addEventListener('load', function () {
     st.opacity = '1';
     st.transform = 'none';
     setTimeout(function () {
-      ['overflow', 'height', 'box-sizing', 'transform'].forEach(function (p) { st.removeProperty(p); });
-      st.transition = 'none';
-      st.backgroundColor = 'rgba(221,0,49,.09)';
-      st.boxShadow = '0 0 0 6px rgba(221,0,49,.09)';
-      w.getBoundingClientRect();
-      st.transition = 'background-color 1.2s ease-out, box-shadow 1.2s ease-out';
-      st.backgroundColor = 'rgba(221,0,49,0)';
-      st.boxShadow = '0 0 0 6px rgba(221,0,49,0)';
-      setTimeout(function () {
-        ['margin-top', 'opacity', 'transition', 'background-color', 'box-shadow'].forEach(function (p) { st.removeProperty(p); });
-      }, 1300);
-    }, 650);
+      ['overflow', 'height', 'box-sizing', 'transform', 'margin-top', 'opacity', 'transition'].forEach(function (p) { st.removeProperty(p); });
+    }, 700);
   }
 
   function pokaz(el, l) { el.textContent = lensow(l); }

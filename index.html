@@ -43,13 +43,15 @@ iframe.telefon{width:390px}
 <div class="ramka-wrap"><iframe id="ramka" title="Strona sklepu cyfrowe.pl"></iframe></div>
 <script>
 (function () {
+  var WERSJA_PROTOTYPU = '2026-11-19-4';
   var s = { strona: 'karta', wersja: 'B', ekran: 'komputer' };
   try { location.hash.replace('#', '').split('&').forEach(function (p) { var kv = p.split('='); if (kv[0] in s && kv[1]) s[kv[0]] = kv[1]; }); } catch (e) {}
   var ramka = document.getElementById('ramka');
   function rysuj() {
     document.querySelectorAll('[data-k]').forEach(function (b) { b.setAttribute('aria-pressed', String(s[b.dataset.k] === b.dataset.v)); });
     ramka.className = s.ekran === 'telefon' ? 'telefon' : '';
-    ramka.src = s.strona + '.html#wersja=' + s.wersja + '&t=' + Date.now();
+    /* Numer wersji w adresie: przeglądarka nie weźmie starej strony z pamięci (GitHub Pages trzyma ją do 10 minut). */
+    ramka.src = s.strona + '.html?v=' + WERSJA_PROTOTYPU + '-' + Date.now() + '#wersja=' + s.wersja;
     history.replaceState(null, '', '#strona=' + s.strona + '&wersja=' + s.wersja + '&ekran=' + s.ekran);
   }
   document.addEventListener('click', function (e) { var b = e.target.closest('[data-k]'); if (!b) return; s[b.dataset.k] = b.dataset.v; rysuj(); });
