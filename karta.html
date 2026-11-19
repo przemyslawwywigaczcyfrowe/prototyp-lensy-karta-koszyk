@@ -14264,8 +14264,18 @@ Przy składaniu wniosku o kredyt mogą być potrzebne dokumenty poświadczające
 </div>
 </div>
 <div><div class="grecaptcha-badge" data-style="bottomright" style="width: 256px; height: 60px; display: block; transition: right 0.3s; position: fixed; bottom: 14px; right: -186px; box-shadow: gray 0px 0px 5px; border-radius: 2px; overflow: hidden;"><div class="grecaptcha-logo"></div><div class="grecaptcha-error"></div><textarea class="g-recaptcha-response" id="g-recaptcha-response-100000" name="g-recaptcha-response" style="width: 250px; height: 40px; border: 1px solid rgb(193, 193, 193); margin: 10px 25px; padding: 0px; resize: none; display: none;"></textarea></div></div><div><div class="grecaptcha-badge" data-style="none" style="width: 256px; height: 60px; position: fixed; visibility: hidden;"><div class="grecaptcha-logo"></div><div class="grecaptcha-error"></div><textarea class="g-recaptcha-response" id="g-recaptcha-response-100001" name="g-recaptcha-response" style="width: 250px; height: 40px; border: 1px solid rgb(193, 193, 193); margin: 10px 25px; padding: 0px; resize: none; display: none;"></textarea></div></div><div></div><script>
-/* Prototyp: wersja B to kod z GrowthBooka bez zmian, wersja A to strona bez kodu. */
-if (location.hash.indexOf('wersja=A') < 0) {
+/* Prototyp: wersja B to kod z GrowthBooka bez zmian, wersja A to strona bez kodu.
+   Tylko w prototypie: strona przewija się do panelu ceny (karta) albo podsumowania (koszyk),
+   a kod wersji B rusza 0,6 s później, żeby wejście wiersza było widać od początku.
+   W sklepie kod rusza od razu po wczytaniu strony. */
+function gbPrzewin() {
+  var cel = document.querySelector('.offer-product-card') || document.querySelector('.cart-summary');
+  if (cel) window.scrollTo(0, Math.max(0, cel.getBoundingClientRect().top + window.scrollY - 120));
+}
+window.addEventListener('load', function () {
+  gbPrzewin();
+  if (location.hash.indexOf('wersja=A') >= 0) return;
+  setTimeout(function () {
 (function () {
   'use strict';
 
@@ -14349,74 +14359,53 @@ if (location.hash.indexOf('wersja=A') < 0) {
       '<a href="/p/lenshero" data-gbl-strona>Poznaj zasady LensHero</a>';
   }
 
-  /* WEJŚCIE WIERSZA (prośba Przemka 19.11.2026): dodatkowy wiersz nie może wskoczyć jak błąd.
-     Wiersz rozsuwa się od zera do swojej wysokości (treść poniżej zjeżdża płynnie, 450 ms),
-     jednocześnie pojawia się i lekko zjeżdża z góry, a potem liczba Lensów nabija się od zera.
-     Przy prefers-reduced-motion: od razu gotowy wiersz, bez ruchu. */
+  /* WEJŚCIE WIERSZA (prośba Przemka 19.11.2026). Wiersz dokłada skrypt, więc bez animacji
+     treść pod nim przeskoczyłaby w dół jak po błędzie. Zamiast tego trzy kroki, które pokazują,
+     że sklep celowo dokłada nowy element:
+     1. 0-450 ms: robi się miejsce. Wysokość wiersza rośnie od zera, treść poniżej
+        (w karcie przycisk "Do koszyka", w koszyku "Odbiór w salonie" i niżej) zjeżdża płynnie.
+     2. 250-650 ms: w tym miejscu wyłania się wiersz, lekko wsuwając się od lewej.
+     3. 600-1800 ms: delikatne podświetlenie wiersza w kolorze LensHero, które gaśnie.
+     Liczba Lensów od początku stoi na docelowej wartości.
+     Bez animacji (wiersz od razu na miejscu): prefers-reduced-motion i karta otwarta w tle. */
   var BEZ_RUCHU = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var LAGODNIE = 'cubic-bezier(.25,.8,.25,1)';
 
-  function wjazd(w, poKoncu) {
-    if (BEZ_RUCHU) { if (poKoncu) poKoncu(); return; }
-    var cs = getComputedStyle(w);
-    var mt = cs.marginTop;
-    var h = w.getBoundingClientRect().height;
-    w.style.overflow = 'hidden';
-    w.style.height = '0px';
-    w.style.marginTop = '0px';
-    w.style.opacity = '0';
-    w.style.transform = 'translateY(-6px)';
-    w.getBoundingClientRect();
-    w.style.transition = 'height .45s cubic-bezier(.2,.7,.2,1), margin-top .45s cubic-bezier(.2,.7,.2,1), opacity .35s ease-out .1s, transform .35s ease-out .1s';
-    w.style.height = h + 'px';
-    w.style.marginTop = mt;
-    w.style.opacity = '1';
-    w.style.transform = 'none';
-    var gotowe = false;
-    function koniec() {
-      if (gotowe) return;
-      gotowe = true;
-      ['overflow', 'height', 'margin-top', 'opacity', 'transform', 'transition'].forEach(function (p) { w.style.removeProperty(p); });
-      if (poKoncu) poKoncu();
-    }
-    w.addEventListener('transitionend', function (e) { if (e.propertyName === 'height') koniec(); });
-    setTimeout(koniec, 700);
-  }
-
-  /* Liczba Lensów nabija się od poprzedniej wartości do nowej (pierwszy raz od zera), 600 ms. */
-  function odlicz(el, cel) {
-    var od = el.__gblWartosc || 0;
-    el.__gblWartosc = cel;
-    /* Karta otwarta w tle (np. produkt w nowej karcie) wstrzymuje klatki animacji: wtedy od razu
-       docelowa liczba. Zabezpieczenie: po 1 s liczba stoi na docelowej, nawet gdy klatki nie ruszyły. */
-    if (BEZ_RUCHU || od === cel || !window.requestAnimationFrame || document.hidden) { el.textContent = lensow(cel); return; }
-    setTimeout(function () { if (el.__gblWartosc === cel) el.textContent = lensow(cel); }, 1000);
-    var start = null;
-    function krok(t) {
-      if (start === null) start = t;
-      var p = Math.min(1, (t - start) / 600);
-      var e = 1 - Math.pow(1 - p, 3);
-      var v = Math.round((od + (cel - od) * e) / 4) * 4;
-      el.textContent = lensow(p < 1 ? v : cel);
-      if (p < 1 && el.__gblWartosc === cel) requestAnimationFrame(krok);
-    }
-    requestAnimationFrame(krok);
-  }
-
-  /* Liczba w wierszu: przed wstawieniem od razu docelowa (do zmierzenia wysokości),
-     po wstawieniu każda zmiana (wariant, ilość, kod) nabija się płynnie. */
-  function pokaz(el, l) {
-    if (el.isConnected && el.__gblWszedl) odlicz(el, l);
-    else { el.textContent = lensow(l); el.__gblCel = l; }
-  }
-  function wejdz(w) {
-    var el = w.querySelector('.gbl-ile strong');
-    wjazd(w);
-    el.__gblWszedl = true;
-    el.__gblWartosc = 0;
+  function wjazd(w) {
     if (BEZ_RUCHU || document.hidden) return;
-    el.textContent = lensow(0);
-    setTimeout(function () { odlicz(el, el.__gblCel); }, 150);
+    var mt = getComputedStyle(w).marginTop;
+    var h = w.getBoundingClientRect().height;
+    var st = w.style;
+    st.boxSizing = 'border-box';
+    st.overflow = 'hidden';
+    st.height = '0px';
+    st.marginTop = '0px';
+    st.opacity = '0';
+    st.transform = 'translateX(-10px)';
+    w.getBoundingClientRect();
+    st.transition = 'height .45s ' + LAGODNIE + ', margin-top .45s ' + LAGODNIE +
+      ', opacity .4s ease-out .25s, transform .4s ' + LAGODNIE + ' .25s';
+    st.height = h + 'px';
+    st.marginTop = mt;
+    st.opacity = '1';
+    st.transform = 'none';
+    setTimeout(function () {
+      ['overflow', 'height', 'box-sizing', 'transform'].forEach(function (p) { st.removeProperty(p); });
+      st.transition = 'none';
+      st.backgroundColor = 'rgba(221,0,49,.09)';
+      st.boxShadow = '0 0 0 6px rgba(221,0,49,.09)';
+      w.getBoundingClientRect();
+      st.transition = 'background-color 1.2s ease-out, box-shadow 1.2s ease-out';
+      st.backgroundColor = 'rgba(221,0,49,0)';
+      st.boxShadow = '0 0 0 6px rgba(221,0,49,0)';
+      setTimeout(function () {
+        ['margin-top', 'opacity', 'transition', 'background-color', 'box-shadow'].forEach(function (p) { st.removeProperty(p); });
+      }, 1300);
+    }, 650);
   }
+
+  function pokaz(el, l) { el.textContent = lensow(l); }
+  function wejdz(w) { wjazd(w); }
 
   /* Ikona "?" z dymkiem. Zwraca element i funkcję, która wpisuje do dymka aktualną liczbę. */
   function pytajnik(miejsce) {
@@ -14537,7 +14526,8 @@ if (location.hash.indexOf('wersja=A') < 0) {
   else start();
 })();
 
-}
+  }, 600);
+});
 window.addEventListener('hashchange', function () { location.reload(); });
 /* Kopia strony: odnośniki i formularze nie wychodzą do sklepu. Wyjątek: link z dymka LensHero
    otwiera prawdziwą stronę programu w nowej karcie, żeby było widać, dokąd prowadzi. */

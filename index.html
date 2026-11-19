@@ -38,6 +38,7 @@ iframe.telefon{width:390px}
     <button type="button" data-k="ekran" data-v="komputer">Komputer</button>
     <button type="button" data-k="ekran" data-v="telefon">Telefon</button>
   </div>
+  <div class="grupa"><button type="button" id="powtorz">Pokaż wejście wiersza</button></div>
 </div></div>
 <div class="ramka-wrap"><iframe id="ramka" title="Strona sklepu cyfrowe.pl"></iframe></div>
 <script>
@@ -52,6 +53,8 @@ iframe.telefon{width:390px}
     history.replaceState(null, '', '#strona=' + s.strona + '&wersja=' + s.wersja + '&ekran=' + s.ekran);
   }
   document.addEventListener('click', function (e) { var b = e.target.closest('[data-k]'); if (!b) return; s[b.dataset.k] = b.dataset.v; rysuj(); });
+  /* Wiersz LensHero wjeżdża przy wczytaniu strony. Przycisk wczytuje ją jeszcze raz w wersji B. */
+  document.getElementById('powtorz').addEventListener('click', function () { s.wersja = 'B'; rysuj(); });
   rysuj();
 })();
 </script>
