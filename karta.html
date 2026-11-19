@@ -14356,7 +14356,15 @@ window.addEventListener('load', function () {
     '#' + ID + ' .gbl-dymek .tooltip a{color:inherit;text-decoration:underline;font-weight:700}' +
     /* Znak LensHero przed nazwą w dymku: wysokość 11 px, czyli plik skalowany do 56 x 11 px, widać lewe 20 px. */
     '#' + ID + ' .gbl-znak{display:inline-block;width:20px;height:11px;margin:0 5px 0 0;vertical-align:-1px;' +
-      'background:url(' + LOGO + ') 0 0/56px 11px no-repeat}';
+      'background:url(' + LOGO + ') 0 0/56px 11px no-repeat}' +
+    /* Ten sam znak przed nazwą "LensHero" w wierszu (prośba Przemka 19.11.2026). Tło panelu jest
+       jasnoszare, więc biały znak barwimy filtrem na czerwień LensHero (#dd0031), jak liczbę Lensów.
+       Filtr zamiast maski, bo maska z pliku z innej domeny wymaga CORS. */
+    '#' + ID + ' .gbl-znak-wiersz{display:inline-block;width:20px;height:11px;margin:0 5px 0 0;vertical-align:-1px;' +
+      'background:url(' + LOGO + ') 0 0/56px 11px no-repeat;' +
+      'filter:brightness(0) saturate(100%) invert(12%) sepia(97%) saturate(6928%) hue-rotate(340deg) brightness(82%) contrast(112%)}' +
+    /* Wiersz na karcie (.payment-offer) ma własny odstęp 6 px między elementami, więc bez marginesu. */
+    '#' + ID + '.payment-offer .gbl-znak-wiersz{margin-right:0}';
 
   function dymek(l, miejsce) {
     return '<p><span class="gbl-znak" aria-hidden="true"></span><strong>LensHero</strong> to program lojalnościowy cyfrowe.pl. Za każde wydane 10' + NBSP + 'zł dostajesz 4' + NBSP +
@@ -14454,7 +14462,7 @@ window.addEventListener('load', function () {
     w.id = ID;
     w.className = 'payment-offer';
     w.setAttribute('data-gb-test', TEST);
-    w.innerHTML = 'LensHero: <a class="link gbl-ile" href="#" role="button">+<strong></strong></a>';
+    w.innerHTML = '<span class="gbl-znak-wiersz" aria-hidden="true"></span>LensHero: <a class="link gbl-ile" href="#" role="button">+<strong></strong></a>';
     var p = pytajnik('karta');
     w.appendChild(p.el);
     w.querySelector('.gbl-ile').addEventListener('click', function (e) { e.preventDefault(); p.przelacz(); });
@@ -14484,7 +14492,7 @@ window.addEventListener('load', function () {
     w.id = ID;
     w.className = 'cart-totals__row';
     w.setAttribute('data-gb-test', TEST);
-    w.innerHTML = '<span class="gbl-nazwa">LensHero </span><span><a class="link gbl-ile" href="#" role="button">+<strong></strong></a></span>';
+    w.innerHTML = '<span class="gbl-nazwa"><span class="gbl-znak-wiersz" aria-hidden="true"></span>LensHero </span><span><a class="link gbl-ile" href="#" role="button">+<strong></strong></a></span>';
     var p = pytajnik('koszyk');
     w.querySelector('.gbl-nazwa').appendChild(p.el);
     w.querySelector('.gbl-ile').addEventListener('click', function (e) { e.preventDefault(); p.przelacz(); });
