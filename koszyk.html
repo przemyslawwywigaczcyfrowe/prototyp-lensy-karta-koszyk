@@ -3549,6 +3549,10 @@ window.addEventListener('load', function () {
   var WERSJA = 'GB-' + TEST + '-1';
   var ID = 'gb-lensy';
   var NBSP = ' ';
+  /* Logo LensHero ze stopki sklepu: biały znak i napis na przezroczystym tle, 260 x 51 px.
+     W dymku pokazujemy sam znak (lewe 91 px pliku). Nazwa pliku ma skrót z kompilacji sklepu,
+     więc po zmianie logo trzeba ją tu poprawić. */
+  var LOGO = '/build/app/shop/images/lenshero-logo.1e690cd6.png';
 
   function zdarzenie(nazwa, dodatki) {
     try {
@@ -3591,10 +3595,13 @@ window.addEventListener('load', function () {
     '#' + ID + ' .gbl-dymek .tooltip{position:absolute;left:0;width:100%;max-width:340px;white-space:normal;text-align:left;z-index:20}' +
     '#' + ID + ' .gbl-dymek.gbl-otwarty .tooltip{opacity:1;visibility:visible}' +
     '#' + ID + ' .gbl-dymek .tooltip p{margin:0 0 8px}' +
-    '#' + ID + ' .gbl-dymek .tooltip a{color:inherit;text-decoration:underline;font-weight:700}';
+    '#' + ID + ' .gbl-dymek .tooltip a{color:inherit;text-decoration:underline;font-weight:700}' +
+    /* Znak LensHero przed nazwą w dymku: wysokość 11 px, czyli plik skalowany do 56 x 11 px, widać lewe 20 px. */
+    '#' + ID + ' .gbl-znak{display:inline-block;width:20px;height:11px;margin:0 5px 0 0;vertical-align:-1px;' +
+      'background:url(' + LOGO + ') 0 0/56px 11px no-repeat}';
 
   function dymek(l, miejsce) {
-    return '<p><strong>LensHero</strong> to program lojalnościowy cyfrowe.pl. Za każde wydane 10' + NBSP + 'zł dostajesz 4' + NBSP +
+    return '<p><span class="gbl-znak" aria-hidden="true"></span><strong>LensHero</strong> to program lojalnościowy cyfrowe.pl. Za każde wydane 10' + NBSP + 'zł dostajesz 4' + NBSP +
       'Lensy, a 1000 Lensów wymieniasz na kod rabatowy 25' + NBSP + 'zł.</p>' +
       '<p>' + (miejsce === 'koszyk' ? 'Za to zamówienie' : 'Za ten produkt') + ' zbierzesz <strong>' + lensow(l) + '</strong>, czyli ' +
       zl(l * 0.025) + ' na kolejne zakupy. Na start programu dostajesz 40' + NBSP + 'Lensów.</p>' +
