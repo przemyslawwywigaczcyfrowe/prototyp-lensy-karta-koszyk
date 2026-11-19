@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Lensy na karcie produktu i w koszyku</title>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://www.cyfrowe.pl/build/app/shop/app-shop-entry.11107d7e.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+/* Strona prototypu. Panel zakupu, ceny, przyciski i podsumowanie koszyka to klasy sklepu
+   (offer-product-card, prices-offer, price-split, cart-summary, cart-totals, button).
+   Odtworzone ze stanu cyfrowe.pl z 19.11.2026. Sklep ma body{line-height:1em}, więc
+   tekst ciągły dostaje własną interlinię. */
+body{background:#fff;margin:0}
+[hidden]{display:none!important}
+.pr-top{border-bottom:1px solid #e6e6e6}
+.pr-top-in{max-width:1440px;margin:0 auto;padding:18px 34px;display:flex;align-items:center;gap:24px}
+.pr-logo{font:700 26px/1 Lato,Arial,sans-serif;border:2px solid #1b1b1b;padding:6px 10px;letter-spacing:-.5px}
+.pr-claim{font:700 10px/1.2 Lato,Arial,sans-serif;text-transform:uppercase;color:#444}
+.pr-page{max-width:1440px;margin:0 auto;padding:16px 34px 60px;box-sizing:border-box;line-height:1.4}
+.pr-page *{box-sizing:border-box}
+.pr-crumbs{font-size:13px;color:#444;margin:4px 0 18px}
+.pr-crumbs span{color:#999;margin:0 6px}
+.pr-h1{font-size:24px;font-weight:700;margin:0 0 8px;line-height:1.25}
+.pr-stars{color:#eee800;font-size:14px;margin-bottom:18px}
+.pr-stars em{color:#444;font-style:normal;font-size:13px;margin-left:6px;text-decoration:underline}
+.pr-grid{display:grid;grid-template-columns:minmax(0,1fr) 520px;gap:48px;align-items:start}
+.pr-photo{display:flex;align-items:center;justify-content:center;min-height:420px}
+.pr-photo img{max-width:100%;max-height:440px}
+.pr-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.pr-pill{font-size:12px;border:1px solid #dd0031;border-radius:14px;padding:5px 10px;color:#1b1b1b}
+.offer-product-card{background:#f2f2f2;padding:0 0 18px}
+.offer-product-card__offer{padding:18px 18px 0}
+.pr-pay{font-size:13px;color:#444;margin:14px 0 18px;line-height:1.7}
+.pr-pay a{color:#1b1b1b;text-decoration:underline;font-weight:700}
+.pr-buttons{display:flex;gap:8px}
+.pr-buttons .pr-heart{width:54px;flex:0 0 54px;display:flex;align-items:center;justify-content:center;border:1px solid #1b1b1b;background:#fff;font-size:18px}
+.pr-buttons .pr-ask{flex:0 0 150px;display:flex;align-items:center;justify-content:center;border:1px solid #1b1b1b;background:#fff;font-size:14px}
+.pr-below{margin-top:18px;font-size:14px;line-height:1.6;color:#1b1b1b}
+.pr-below p{margin:0 0 10px;display:flex;gap:10px;align-items:baseline}
+.pr-below i{width:18px;text-align:center}
+.pr-green{color:#4caf50}
+
+/* KOSZYK */
+.pr-cart{display:grid;grid-template-columns:minmax(0,1fr) 398px;gap:48px;align-items:start}
+.pr-cart-h{font-size:24px;font-weight:700;margin:0 0 18px}
+.pr-item{display:grid;grid-template-columns:110px minmax(0,1fr) 150px;gap:18px;border-top:1px solid #e6e6e6;padding:18px 0}
+.pr-item:last-child{border-bottom:1px solid #e6e6e6}
+.pr-item img{width:100px;height:80px;object-fit:contain}
+.pr-item-name{font-weight:700;font-size:14px;margin-bottom:6px}
+.pr-item-av{font-size:13px;color:#444}
+.pr-item-price{text-align:right}
+.pr-item-old{font-size:12px;color:#777;text-decoration:line-through}
+.cart-summary{background:#f2f2f2;padding:18px}
+.cart-totals__row{display:flex;justify-content:space-between;font-size:13px;color:#444;padding:5px 0}
+.cart-totals__row--big{font-size:19px;font-weight:700;color:#1b1b1b;padding:9px 0}
+.pr-cart-btns{margin-top:18px;display:flex;flex-direction:column;gap:12px}
+.pr-cart-btns .pr-ask2{display:flex;align-items:center;justify-content:center;height:40px;border:1px solid #1b1b1b;background:#fff;font-size:13px}
+.pr-coupon{margin-top:24px;border:1px solid #c6c6c6;background:#fff;height:40px;display:flex;align-items:center;padding:0 12px;font-size:13px;color:#777;gap:8px}
+
+/* WIERSZ LENSHERO (wersja B). Turkus = informacja w Cyfrowe Design System.
+   Wiersz stoi POD przyciskiem, więc wstawienie go nie przesuwa przycisku. */
+.lh-row{margin-top:12px;display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.45;color:#1b1b1b}
+.lh-ico{flex:0 0 22px;height:22px;border-radius:50%;background:#00b7d1;color:#fff;display:flex;align-items:center;justify-content:center;margin-top:-1px}
+.lh-ico svg{width:14px;height:14px}
+.lh-txt strong{font-weight:700}
+.lh-more{background:none;border:0;padding:0;margin-left:4px;font:inherit;font-size:13px;color:#008a9e;text-decoration:underline;cursor:pointer;white-space:nowrap}
+.lh-box{margin:10px 0 0 32px;padding:12px 14px;background:#fff;border-left:2px solid #00b7d1;font-size:13px;line-height:1.5;color:#333}
+.lh-box ul{margin:0 0 8px;padding-left:18px}
+.lh-box li{margin:2px 0}
+.lh-box a{color:#008a9e;text-decoration:underline}
+.cart-summary .lh-row{margin-top:14px}
+.cart-summary .lh-box{background:#fff}
+
+@media (max-width: 1023.98px){
+  .pr-top-in,.pr-page{padding-left:15px;padding-right:15px}
+  .pr-grid,.pr-cart{grid-template-columns:1fr;gap:18px}
+  .pr-photo{min-height:240px}.pr-photo img{max-height:260px}
+  .pr-buttons{flex-wrap:wrap}
+  .pr-buttons .button--primary{flex:1 1 calc(100% - 62px)}
+  .pr-buttons .pr-ask{flex:1 1 100%;height:48px}
+  .pr-item{grid-template-columns:80px minmax(0,1fr);}
+  .pr-item-price{grid-column:2;text-align:left}
+  .pr-claim{display:none}
+}
+</style>
+</head>
+<body>
+<div class="pr-top"><div class="pr-top-in"><span class="pr-logo">cyfrowe.pl</span><span class="pr-claim">Lepsza fotografia<br>lepszy film</span></div></div>
+
+<!-- KARTA PRODUKTU -->
+<main class="pr-page" id="karta">
+  <div class="pr-crumbs">Cyfrowe.pl<span>/</span>Fotografia<span>/</span>Aparaty cyfrowe<span>/</span>Bezlusterkowce</div>
+  <h1 class="pr-h1">Aparat cyfrowy Sony A7 V body (ILCE7M5B.CEC)</h1>
+  <div class="pr-stars">★★★★★<em>5/5 (1 opinia)</em></div>
+  <div class="pr-grid">
+    <div class="pr-photo"><img src="https://www.cyfrowe.pl/media/cache/resolve/app_shop_product_gallery_main/9f/ad/5183a74ee3a52a1a98106f801549.jpg" alt="Aparat cyfrowy Sony A7 V body"></div>
+    <div>
+      <div class="pr-pills"><span class="pr-pill">Akumulator 10% taniej</span><span class="pr-pill">Ładowarka 10% taniej</span><span class="pr-pill">do 30 rat RRSO 0%</span></div>
+      <div class="offer-product-card">
+        <div class="offer-alternatives offer-product-card__alternatives">
+          <span class="offer-alternatives__tab button offer-alternatives__tab--is-selected button--small button--border-neutral-200">Nowy</span>
+          <span class="offer-alternatives__tab button button--small button--border-neutral-200">Wypożycz</span>
+        </div>
+        <div class="offer-product-card__offer">
+          <div class="offer-product-card__prices">
+            <div class="prices-offer">
+              <span class="price price--xxlarge prices-offer__price"><span class="price-split"><span class="price-split__integer" id="cena-cale">11 499</span><span class="price-split__separator">,</span><span class="price-split__decimals" id="cena-gr">00</span><span class="price-split__currency">zł</span></span></span>
+              <div class="prices-offer__price-old" id="cena-stara"><span class="price-old"><span class="price-compact">11 995<span class="price-compact__decimals">,00</span> zł</span></span> <span class="price-discount price-discount--medium prices-offer__price-discount">-4%</span></div>
+              <span class="price-omnibus prices-offer__omnibus" id="omnibus">Najniższa cena z 30 dni przed obniżką: <span class="price-omnibus__price"><span class="price-compact">11 995<span class="price-compact__decimals">,00</span> zł</span></span></span>
+            </div>
+          </div>
+          <div class="pr-pay">Raty RRSO 0%: <a id="raty">30 x 383,30 zł</a><span id="leasing"><br>Leasing: <a>rata od 175,71 zł</a></span></div>
+          <div class="pr-buttons">
+            <button type="button" class="button button--xlarge button--primary button--bold button--fluid">Do koszyka</button>
+            <span class="pr-heart"><i class="fa-regular fa-heart"></i></span>
+            <span class="pr-ask">Zapytaj o ofertę</span>
+          </div>
+          <div id="lh-karta"></div>
+        </div>
+      </div>
+      <div class="pr-below">
+        <p><i class="fa-solid fa-circle pr-green"></i><span><strong>Wysyłamy w 24h</strong><br>Duża ilość w magazynie</span></p>
+        <p><i class="fa-solid fa-truck"></i><span>Darmowa dostawa</span></p>
+        <p><i class="fa-solid fa-location-dot"></i><span>Darmowy odbiór w salonach</span></p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- KOSZYK -->
+<main class="pr-page" id="koszyk" hidden>
+  <div class="pr-crumbs">Cyfrowe.pl<span>/</span>Koszyk</div>
+  <h1 class="pr-cart-h">Koszyk (2)</h1>
+  <div class="pr-cart">
+    <div>
+      <div class="pr-item">
+        <img src="https://www.cyfrowe.pl/media/cache/resolve/app_shop_product_gallery_main/9f/ad/5183a74ee3a52a1a98106f801549.jpg" alt="">
+        <div><div class="pr-item-name">Aparat cyfrowy Sony A7 V body (ILCE7M5B.CEC)</div><div class="pr-item-av"><i class="fa-solid fa-circle pr-green"></i> Wysyłamy w 24h</div></div>
+        <div class="pr-item-price"><span class="price price--medium"><span class="price-split"><span class="price-split__integer">11 499</span><span class="price-split__separator">,</span><span class="price-split__decimals">00</span><span class="price-split__currency">zł</span></span></span><div class="pr-item-old">11 995,00 zł</div></div>
+      </div>
+      <div class="pr-item">
+        <div style="width:100px;height:80px;display:flex;align-items:center;justify-content:center;background:#f2f2f2;font-size:26px;color:#777"><i class="fa-solid fa-sd-card"></i></div>
+        <div><div class="pr-item-name">Karta pamięci SanDisk Extreme PRO SDXC 128 GB 200 MB/s V30 UHS-I U3</div><div class="pr-item-av"><i class="fa-solid fa-circle pr-green"></i> Wysyłamy w 24h</div></div>
+        <div class="pr-item-price"><span class="price price--medium"><span class="price-split"><span class="price-split__integer">255</span><span class="price-split__separator">,</span><span class="price-split__decimals">00</span><span class="price-split__currency">zł</span></span></span></div>
+      </div>
+    </div>
+    <div class="cart-summary">
+      <div class="cart-totals">
+        <div class="cart-totals__row"><span>Wartość zamówienia</span><span>12 250,00 zł</span></div>
+        <div class="cart-totals__row"><span>Zniżki</span><span>-496,00 zł</span></div>
+        <div class="cart-totals__row cart-totals__row--big"><span>Do zapłaty</span><span class="price price--large"><span class="price-split"><span class="price-split__integer">11 754</span><span class="price-split__separator">,</span><span class="price-split__decimals">00</span><span class="price-split__currency">zł</span></span></span></div>
+        <div class="cart-totals__row"><span>Raty RRSO 0%</span><span>30 x 391,80 zł</span></div>
+        <div class="cart-totals__row"><span>Odbiór w salonie</span><span>od 0 zł</span></div>
+        <div class="cart-totals__row"><span>Dostawa</span><span>od 0 zł</span></div>
+      </div>
+      <div class="pr-cart-btns">
+        <button type="button" class="button button--primary button--bold button--fluid button--xlarge">Przejdź do kasy</button>
+        <div id="lh-koszyk"></div>
+        <span class="pr-ask2">Zapytaj o ofertę</span>
+      </div>
+      <div class="pr-coupon"><i class="fa-solid fa-tag"></i> Kod rabatowy</div>
+    </div>
+  </div>
+</main>
+
+<script src="lensy.js"></script>
+<script>
+(function () {
+  'use strict';
+  var L = window.LensHero;
+  var KOSZYK_ZL = 11754; /* Do zapłaty bez dostawy: 11 499 + 255 */
+  var IKONA = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="12" r="3.6" fill="currentColor"/></svg>';
+
+  function opis() {
+    return '<div class="lh-box" hidden>' +
+      '<ul>' +
+      '<li>Za każde wydane 10 zł dostajesz 4 Lensy.</li>' +
+      '<li>1000 Lensów wymieniasz na kod rabatowy 25 zł na kolejne zakupy.</li>' +
+      '<li>Lensy wpływają na konto 15 dni roboczych po realizacji zamówienia i są ważne 3 lata.</li>' +
+      '<li>Lensów nie naliczamy przy zamówieniach z indywidualną ofertą cenową.</li>' +
+      '<li>Do programu dołączasz przy zakładaniu konta albo przy składaniu zamówienia. Na start dostajesz 40 Lensów.</li>' +
+      '</ul>' +
+      '<a href="https://www.cyfrowe.pl/p/lenshero" target="_blank" rel="noopener">Regulamin programu LensHero</a>' +
+      '</div>';
+  }
+
+  function wiersz(zl, gdzie) {
+    var l = L.lensy(zl);
+    if (l <= 0) return '';
+    var poczatek = gdzie === 'koszyk' ? 'Za to zamówienie ' : 'Za ten zakup ';
+    return '<div class="lh-row" data-lh="' + gdzie + '"><span class="lh-ico">' + IKONA + '</span>' +
+      '<span class="lh-txt">' + poczatek + '<strong>' + L.liczba(l) + ' ' + L.slowo(l) + '</strong> w LensHero, czyli ' +
+      L.zl(L.wartoscZl(l)) + ' na kolejne zakupy.' +
+      '<button type="button" class="lh-more" aria-expanded="false">Jak to działa?</button></span></div>' + opis();
+  }
+
+  function stan() {
+    var h = (location.hash || '').replace('#', '').split('&');
+    var s = { widok: 'karta', wersja: 'B', cena: '11499' };
+    h.forEach(function (p) { var kv = p.split('='); if (kv[0] && kv[1]) s[kv[0]] = decodeURIComponent(kv[1]); });
+    return s;
+  }
+
+  function rysuj() {
+    var s = stan();
+    var cena = parseFloat(String(s.cena).replace(',', '.')) || 0;
+    document.getElementById('karta').hidden = s.widok !== 'karta';
+    document.getElementById('koszyk').hidden = s.widok !== 'koszyk';
+
+    var c = cena.toFixed(2).split('.');
+    document.getElementById('cena-cale').textContent = c[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    document.getElementById('cena-gr').textContent = c[1];
+    var promo = cena === 11499;
+    document.getElementById('cena-stara').hidden = !promo;
+    document.getElementById('omnibus').hidden = !promo;
+    document.getElementById('raty').textContent = '30 x ' + L.zl(Math.ceil(cena / 30 * 100) / 100);
+    document.getElementById('leasing').hidden = !promo;
+    document.querySelector('.pr-pay').hidden = cena < 300;
+
+    document.getElementById('lh-karta').innerHTML = s.wersja === 'B' ? wiersz(cena, 'karta') : '';
+    document.getElementById('lh-koszyk').innerHTML = s.wersja === 'B' ? wiersz(KOSZYK_ZL, 'koszyk') : '';
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.lh-more');
+    if (!b) return;
+    var box = b.closest('.lh-row').nextElementSibling;
+    box.hidden = !box.hidden;
+    b.setAttribute('aria-expanded', String(!box.hidden));
+  });
+  window.addEventListener('hashchange', rysuj);
+  rysuj();
+})();
+</script>
+</body></html>

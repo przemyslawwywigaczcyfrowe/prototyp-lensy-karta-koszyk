@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Lensy na karcie i w koszyku</title>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--tlo:#1b1b1b;--tekst:#fff;--szary:#bdbdbd;--turkus:#00b7d1}
+*{box-sizing:border-box}
+body{margin:0;background:#e9e9e9;font:14px/1.45 Lato,Arial,sans-serif;color:#1b1b1b}
+.pasek{position:sticky;top:0;z-index:5;background:var(--tlo);color:var(--tekst)}
+.pasek-in{max-width:1480px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
+.tytul{font-weight:700;margin-right:6px}
+.grupa{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.grupa>span{color:var(--szary)}
+.grupa button{font:inherit;background:#3a3a3a;color:#fff;border:0;padding:6px 12px;cursor:pointer}
+.grupa button[aria-pressed="true"]{background:var(--turkus);color:#002a30;font-weight:700}
+select{font:inherit;padding:5px 8px;border:0;max-width:100%}
+.uwaga{max-width:1480px;margin:0 auto;padding:10px 16px 0;color:#444;font-size:13px}
+.ramka-wrap{display:flex;justify-content:center;padding:12px 16px 32px}
+iframe{border:0;background:#fff;width:100%;max-width:1440px;height:calc(100vh - 140px);min-height:640px;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+iframe.telefon{width:390px;max-width:390px}
+@media (max-width:600px){.tytul{width:100%}}
+</style>
+</head>
+<body>
+<div class="pasek"><div class="pasek-in">
+  <span class="tytul">Lensy LensHero na karcie i w koszyku</span>
+  <div class="grupa" role="group" aria-label="Strona sklepu"><span>Strona:</span>
+    <button type="button" data-k="widok" data-v="karta">Karta produktu</button>
+    <button type="button" data-k="widok" data-v="koszyk">Koszyk</button>
+  </div>
+  <div class="grupa" role="group" aria-label="Wersja testu"><span>Wersja testu:</span>
+    <button type="button" data-k="wersja" data-v="A">A, bez zmian</button>
+    <button type="button" data-k="wersja" data-v="B">B, z Lensami</button>
+  </div>
+  <div class="grupa" role="group" aria-label="Ekran"><span>Ekran:</span>
+    <button type="button" data-k="ekran" data-v="komputer">Komputer</button>
+    <button type="button" data-k="ekran" data-v="telefon">Telefon</button>
+  </div>
+  <label class="grupa" id="grupa-cena"><span>Cena na karcie:</span>
+    <select id="cena">
+      <option value="11499">11 499,00 zł (aparat)</option>
+      <option value="2499">2 499,00 zł</option>
+      <option value="1299">1 299,00 zł</option>
+      <option value="255">255,00 zł (karta pamięci)</option>
+      <option value="19.99">19,99 zł</option>
+      <option value="9.99">9,99 zł (poniżej 10 zł, bez wiersza)</option>
+    </select>
+  </label>
+</div></div>
+<p class="uwaga">Prototyp testu A/B. Wygląd sklepu odtworzony z cyfrowe.pl (19.11.2026). Liczba Lensów: 4 Lensy za każde pełne 10 zł ceny, 1000 Lensów = kod 25 zł. W koszyku liczymy z kwoty „Do zapłaty” bez dostawy. „Jak to działa?” rozwija opis programu.</p>
+<div class="ramka-wrap"><iframe id="ramka" title="Podgląd strony sklepu" src="strona.html"></iframe></div>
+<script>
+(function () {
+  var s = { widok: 'karta', wersja: 'B', ekran: 'komputer', cena: '11499' };
+  try { var h = location.hash.replace('#', '').split('&'); h.forEach(function (p) { var kv = p.split('='); if (kv[0] && kv[1] && kv[0] in s) s[kv[0]] = decodeURIComponent(kv[1]); }); } catch (e) {}
+  var ramka = document.getElementById('ramka');
+  function rysuj() {
+    document.querySelectorAll('[data-k]').forEach(function (b) { b.setAttribute('aria-pressed', String(s[b.dataset.k] === b.dataset.v)); });
+    document.getElementById('cena').value = s.cena;
+    document.getElementById('grupa-cena').hidden = s.widok !== 'karta';
+    ramka.className = s.ekran === 'telefon' ? 'telefon' : '';
+    var hash = 'widok=' + s.widok + '&wersja=' + s.wersja + '&cena=' + s.cena;
+    ramka.src = 'strona.html#' + hash;
+    history.replaceState(null, '', '#' + hash + '&ekran=' + s.ekran);
+  }
+  document.addEventListener('click', function (e) { var b = e.target.closest('[data-k]'); if (!b) return; s[b.dataset.k] = b.dataset.v; rysuj(); });
+  document.getElementById('cena').addEventListener('change', function (e) { s.cena = e.target.value; rysuj(); });
+  rysuj();
+})();
+</script>
+</body></html>
