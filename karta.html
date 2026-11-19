@@ -272,8 +272,8 @@
 <path d="M225.8 468.2l-2.5-2.3L48.1 303.2C17.4 274.7 0 234.7 0 192.8v-3.3c0-70.4 50-130.8 119.2-144C158.6 37.9 198.9 47 231 69.6c9 6.4 17.4 13.8 25 22.3c4.2-4.8 8.7-9.2 13.5-13.3c3.7-3.2 7.5-6.2 11.5-9c0 0 0 0 0 0C313.1 47 353.4 37.9 392.8 45.4C462 58.6 512 119.1 512 189.5v3.3c0 41.9-17.4 81.9-48.1 110.4L288.7 465.9l-2.5 2.3c-8.2 7.6-19 11.9-30.2 11.9s-22-4.2-30.2-11.9zM239.1 145c-.4-.3-.7-.7-1-1.1l-17.8-20c0 0-.1-.1-.1-.1c0 0 0 0 0 0c-23.1-25.9-58-37.7-92-31.2C81.6 101.5 48 142.1 48 189.5v3.3c0 28.5 11.9 55.8 32.8 75.2L256 430.7 431.2 268c20.9-19.4 32.8-46.7 32.8-75.2v-3.3c0-47.3-33.6-88-80.1-96.9c-34-6.5-69 5.4-92 31.2c0 0 0 0-.1 .1s0 0-.1 .1l-17.8 20c-.3 .4-.7 .7-1 1.1c-4.5 4.5-10.6 7-16.9 7s-12.4-2.5-16.9-7z" fill="currentColor"></path>
 </svg>
 </div>
-<div class="state-utility" data-wishlist-widget="">
-<div class="count" data-wishlist-widget-count="">8</div>
+<div class="state-utility d-none" data-wishlist-widget="">
+<div class="count" data-wishlist-widget-count="">0</div>
 </div>
 </div>
 <div class="basic-utility__content">
@@ -14270,23 +14270,28 @@ if (location.hash.indexOf('wersja=A') < 0) {
   'use strict';
 
   /* Wersja B testu pdp_cart_lenshero_lensy (GrowthBook, zmiana wizualna).
-     Karta produktu: pod rzędem przycisków "Do koszyka" komunikat informacyjny
-     "Dostaniesz X Lensów, czyli Y zł na kolejne zakupy w LensHero (i)".
-     Koszyk: ten sam komunikat pod przyciskiem "Przejdź do kasy", dla całego zamówienia.
 
-     Wygląd wyłącznie z klas sklepu (Cyfrowe Design System), bez własnego CSS:
-     komunikat  .cyf-alert.alert.alert--info  (ikona .alert__icon, treść .alert__content),
-     podpowiedź .tooltip-wrapper + .tooltip.tooltip--bottom.tooltip--fluid (pokazuje się po
-     najechaniu, szerokość treści komunikatu), odstęp .mt-3, wyróżnienie nazwy .link.
+     Karta produktu, pod rzędem przycisków "Do koszyka": pasek w barwach LensHero
+       [znak LensHero]  Zbierz 4 596 Lensów
+                        czyli 114,90 zł na kolejne zakupy          Jak to działa?
+     Koszyk, pod "Przejdź do kasy": ten sam pasek dla całego zamówienia i postęp do kodu:
+       "To 4 kody rabatowe po 25 zł. Do kolejnego brakuje 300 Lensów" + pasek postępu.
+
+     Skąd taki wygląd (research 19.11.2026, karta inicjatywy):
+     - liczba punktów zawsze z wartością w złotych (Baymard, wytyczna 2946),
+     - własny znak i barwy programu zamiast systemowej ramki z "i" (Douglas, Yotpo, Smile.io),
+     - w koszyku postęp do nagrody (efekt bliskości celu, Kivetz i in. 2006).
+     Barwy z banera strony programu (cyfrowe.pl/p/lenshero): grafit, biały znak, czerwień
+     sklepu #dd0031 pod znakiem. Kanty proste, czcionka i rytm odstępów z Cyfrowe Design System.
 
      Zasady z regulaminu LensHero: 10 zł = 4 Lensy za każde pełne 10 zł (§ 1 pkt 7),
      1000 Lensów = kod 25 zł (§ 1 pkt 4), więc 1 Lens = 2,5 gr.
      Karta: cena w panelu zakupu, czyli ta, po której klient dodaje produkt do koszyka.
      Koszyk: kwota "Do zapłaty" minus dostawa, czyli produkty po rabatach i kodzie.
 
-     Komunikat stoi POD przyciskiem, więc przycisk się nie przesuwa. Cena zmienia się przy
+     Pasek stoi POD przyciskiem, więc przycisk się nie przesuwa. Cena zmienia się przy
      wyborze wariantu, a koszyk przy zmianie ilości i kodzie rabatowym: obserwator przelicza
-     liczbę po każdej zmianie. Pomiar: experience_impression jak w pozostałych testach. */
+     liczby po każdej zmianie. Pomiar: experience_impression jak w pozostałych testach. */
 
   if (window.__gbLensyB) return;
   window.__gbLensyB = 1;
@@ -14294,6 +14299,10 @@ if (location.hash.indexOf('wersja=A') < 0) {
   var WERSJA = 'GB-' + TEST + '-1';
   var ID = 'gb-lensy';
   var NBSP = ' ';
+  /* Logo LensHero ze stopki sklepu (biały znak i napis na przezroczystym tle, 260 x 51 px).
+     Pokazujemy sam znak: lewe 91 px pliku. Nazwa pliku ma skrót z kompilacji sklepu, więc
+     po zmianie logo trzeba ją tu poprawić. */
+  var LOGO = '/build/app/shop/images/lenshero-logo.1e690cd6.png';
 
   function zdarzenie(nazwa, dodatki) {
     try {
@@ -14313,41 +14322,85 @@ if (location.hash.indexOf('wersja=A') < 0) {
   function lensy(zl) { return zl > 0 ? Math.floor(zl / 10 + 1e-9) * 4 : 0; }
   function liczba(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, NBSP); }
   function zl(n) { var s = n.toFixed(2).split('.'); return liczba(s[0]) + ',' + s[1] + NBSP + 'zł'; }
-  function slowo(n) {
+  function odmiana(n, jeden, kilka, wiele) {
     var j = n % 10, d = n % 100;
-    if (n === 1) return 'Lens';
-    if (j >= 2 && j <= 4 && !(d >= 12 && d <= 14)) return 'Lensy';
-    return 'Lensów';
+    if (n === 1) return jeden;
+    if (j >= 2 && j <= 4 && !(d >= 12 && d <= 14)) return kilka;
+    return wiele;
   }
+  function lensow(n) { return liczba(n) + NBSP + odmiana(n, 'Lens', 'Lensy', 'Lensów'); }
 
-  var PODPOWIEDZ = '4 Lensy za każde wydane 10 zł. 1000 Lensów wymienisz na kod rabatowy 25 zł. ' +
-    'Lensy dostaniesz 15 dni roboczych po realizacji zamówienia. ' +
-    'Do programu dołączysz przy zakładaniu konta albo przy zamówieniu i na start dostaniesz 40 Lensów.';
+  var CSS =
+    '#' + ID + '{--lh-tlo:#25282c;--lh-tlo2:#1b1d20;--lh-czerwien:#dd0031;--lh-szary:#c6c6c6;' +
+      'margin-top:12px;background:linear-gradient(100deg,var(--lh-tlo) 0%,var(--lh-tlo2) 100%);color:#fff;' +
+      'font-size:13px;line-height:1.4;position:relative}' +
+    '#' + ID + ' .lh-in{display:flex;align-items:center;gap:12px;padding:12px 15px}' +
+    '#' + ID + ' .lh-znak{flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:var(--lh-czerwien);' +
+      'box-shadow:0 0 12px rgba(221,0,49,.55);display:flex;align-items:center;justify-content:center}' +
+    '#' + ID + ' .lh-znak span{display:block;width:21px;height:12px;background:url(' + LOGO + ') 0 0/61px 12px no-repeat}' +
+    '#' + ID + ' .lh-tekst{flex:1 1 auto;min-width:0}' +
+    '#' + ID + ' .lh-glowny{font-size:15px;line-height:1.3}' +
+    '#' + ID + ' .lh-glowny strong{font-size:17px;font-weight:900;white-space:nowrap}' +
+    '#' + ID + ' .lh-drugi{color:var(--lh-szary);margin-top:2px}' +
+    '#' + ID + ' .lh-drugi b{color:#fff;font-weight:700;white-space:nowrap}' +
+    '#' + ID + ' .lh-jak{flex:0 0 auto;align-self:flex-end;background:none;border:0;padding:0;color:#fff;font:inherit;' +
+      'font-size:13px;text-decoration:underline;cursor:pointer;white-space:nowrap}' +
+    '#' + ID + ' .lh-jak:hover,#' + ID + ' .lh-jak:focus-visible{color:var(--lh-szary)}' +
+    '#' + ID + ' .lh-postep{padding:0 15px 12px 63px}' +
+    '#' + ID + ' .lh-belka{height:6px;background:rgba(255,255,255,.18);overflow:hidden}' +
+    '#' + ID + ' .lh-belka i{display:block;height:100%;background:var(--lh-czerwien);transition:width .2s ease-in}' +
+    '#' + ID + ' .lh-belka-opis{color:var(--lh-szary);margin-top:6px}' +
+    '#' + ID + ' .lh-belka-opis b{color:#fff;font-weight:700;white-space:nowrap}' +
+    '#' + ID + ' .lh-opis{display:none;border-top:1px solid rgba(255,255,255,.14);padding:12px 15px 12px 63px;color:var(--lh-szary)}' +
+    '#' + ID + '.lh-otwarty .lh-opis{display:block}' +
+    '#' + ID + ' .lh-opis ul{margin:0;padding-left:18px}' +
+    '#' + ID + ' .lh-opis li{margin:0 0 4px}' +
+    '#' + ID + ' .lh-opis a{color:#fff;text-decoration:underline}' +
+    /* Wąska kolumna podsumowania koszyka: "Jak to działa?" pod tekstem, nie obok. */
+    '#' + ID + '.lh-waski .lh-in{flex-wrap:wrap;row-gap:6px}#' + ID + '.lh-waski .lh-jak{align-self:auto;margin-left:48px}' +
+    '@media (max-width:575.98px){#' + ID + ' .lh-in{flex-wrap:wrap}#' + ID + ' .lh-jak{align-self:auto;margin-left:48px}' +
+      '#' + ID + ' .lh-postep,#' + ID + ' .lh-opis{padding-left:15px}}' +
+    '@media (prefers-reduced-motion:reduce){#' + ID + ' .lh-belka i{transition:none}}';
 
-  function tekst(l, miejsce) {
-    /* Komunikat w design systemie ma jedną linię, więc na karcie bez "Za ten zakup". */
-    return (miejsce === 'koszyk' ? 'Za to zamówienie dostaniesz' : 'Dostaniesz') + ' <strong>' +
-      liczba(l) + NBSP + slowo(l) + '</strong>, czyli ' + zl(l * 0.025) + ' na kolejne zakupy w' + NBSP;
-  }
+  var OPIS = '<ul>' +
+    '<li>Za każde wydane 10' + NBSP + 'zł dostajesz 4' + NBSP + 'Lensy.</li>' +
+    '<li>1000 Lensów wymieniasz na kod rabatowy 25' + NBSP + 'zł na kolejne zakupy.</li>' +
+    '<li>Lensy wpływają na konto 15 dni roboczych po realizacji zamówienia i są ważne 3' + NBSP + 'lata.</li>' +
+    '<li>Do programu dołączasz przy zakładaniu konta albo przy zamówieniu. Na start dostajesz 40' + NBSP + 'Lensów.</li>' +
+    '</ul><a href="/p/lenshero" target="_blank" rel="noopener">Regulamin i zasady programu LensHero</a>';
 
   function zbuduj(miejsce) {
     var d = document.createElement('div');
     d.id = ID;
-    d.className = 'cyf-alert alert alert--info mt-3';
+    if (miejsce === 'koszyk') d.className = 'lh-waski';
     d.setAttribute('data-gb-test', TEST);
     d.innerHTML =
-      '<div class="alert__icon"><i class="fa-solid fa-circle-info"></i></div>' +
-      '<div class="alert__content"><div class="tooltip-wrapper d-block">' +
-      '<span class="gbl-txt"></span><span class="link">LensHero' + NBSP + '<i class="fa-regular fa-circle-info"></i></span>' +
-      '<div class="tooltip tooltip--bottom tooltip--fluid">' + PODPOWIEDZ + '</div>' +
-      '</div></div>';
-    var zgloszone = false;
-    d.querySelector('.tooltip-wrapper').addEventListener('mouseenter', function () {
-      if (zgloszone) return;
-      zgloszone = true;
-      zdarzenie('lenshero_opis', { lenshero_miejsce: miejsce });
+      '<div class="lh-in">' +
+      '<div class="lh-znak" aria-hidden="true"><span></span></div>' +
+      '<div class="lh-tekst"><div class="lh-glowny"></div><div class="lh-drugi"></div></div>' +
+      '<button type="button" class="lh-jak" aria-expanded="false">Jak to działa?</button>' +
+      '</div>' +
+      (miejsce === 'koszyk' ? '<div class="lh-postep"><div class="lh-belka"><i></i></div><div class="lh-belka-opis"></div></div>' : '') +
+      '<div class="lh-opis">' + OPIS + '</div>';
+    d.querySelector('.lh-jak').addEventListener('click', function () {
+      var otwarty = d.classList.toggle('lh-otwarty');
+      this.setAttribute('aria-expanded', String(otwarty));
+      if (otwarty) zdarzenie('lenshero_opis', { lenshero_miejsce: miejsce });
     });
     return d;
+  }
+
+  function wypelnij(w, l, miejsce) {
+    w.querySelector('.lh-glowny').innerHTML = (miejsce === 'koszyk' ? 'Zbierzesz ' : 'Zbierz ') +
+      '<strong>' + lensow(l) + '</strong>';
+    w.querySelector('.lh-drugi').innerHTML = 'czyli <b>' + zl(l * 0.025) + '</b> na kolejne zakupy w' + NBSP + 'LensHero';
+    var belka = w.querySelector('.lh-belka i');
+    if (!belka) return;
+    var kody = Math.floor(l / 1000), reszta = l % 1000, brakuje = 1000 - reszta;
+    belka.style.width = (reszta / 10) + '%';
+    w.querySelector('.lh-belka-opis').innerHTML = (kody > 0
+      ? 'To <b>' + kody + NBSP + odmiana(kody, 'kod rabatowy', 'kody rabatowe', 'kodów rabatowych') + ' po 25' + NBSP + 'zł</b>. Do kolejnego brakuje <b>' + lensow(brakuje) + '</b>.'
+      : 'Do pierwszego kodu rabatowego 25' + NBSP + 'zł brakuje <b>' + lensow(brakuje) + '</b>.');
   }
 
   /* Karta produktu */
@@ -14358,17 +14411,17 @@ if (location.hash.indexOf('wersja=A') < 0) {
     var cenaEl = panel.querySelector('.prices-offer__price');
     if (!btn || !cenaEl) return false;
     /* Cały rząd przycisków (Do koszyka, serce, Zapytaj o ofertę). Rodzic przycisku
-       (.offer-buttons__add-to-basket) stoi w rzędzie flex, więc komunikat trafiłby obok przycisku. */
+       (.offer-buttons__add-to-basket) stoi w rzędzie flex, więc pasek trafiłby obok przycisku. */
     var rzad = btn.closest('.offer-buttons') || btn.parentElement;
     var w = zbuduj('karta');
     function przelicz() {
       var l = lensy(kwota(cenaEl.querySelector('.price-split') || cenaEl));
-      w.classList.toggle('d-none', l <= 0);
-      if (l > 0) w.querySelector('.gbl-txt').innerHTML = tekst(l, 'karta');
+      w.style.display = l > 0 ? '' : 'none';
+      if (l > 0) wypelnij(w, l, 'karta');
     }
     przelicz();
     /* Ten sam warunek co w wersji A: cena od 10 zł, inaczej nic nie rysujemy i nie liczymy wejścia. */
-    if (w.classList.contains('d-none')) return false;
+    if (w.style.display === 'none') return false;
     rzad.parentNode.insertBefore(w, rzad.nextSibling);
     new MutationObserver(przelicz).observe(cenaEl, { childList: true, subtree: true, characterData: true });
     zdarzenie('experience_impression', { lenshero_miejsce: 'karta' });
@@ -14389,8 +14442,8 @@ if (location.hash.indexOf('wersja=A') < 0) {
         if (/^\s*Dostawa\s*$/.test((r.children[0] || {}).textContent || '') && !/od\s/i.test(r.textContent)) dostawa = kwota(r.children[1]);
       });
       var l = lensy(doZaplaty - dostawa);
-      w.classList.toggle('d-none', l <= 0);
-      if (l > 0) w.querySelector('.gbl-txt').innerHTML = tekst(l, 'koszyk');
+      w.style.display = l > 0 ? '' : 'none';
+      if (l > 0) wypelnij(w, l, 'koszyk');
     }
     przelicz();
     btn.parentNode.insertBefore(w, btn.nextSibling);
@@ -14404,6 +14457,9 @@ if (location.hash.indexOf('wersja=A') < 0) {
   function start() {
     try {
       if (document.getElementById(ID)) return;
+      var st = document.createElement('style');
+      st.textContent = CSS;
+      document.head.appendChild(st);
       if (/-p\.html$/.test(location.pathname) || document.querySelector('.offer-product-card')) karta();
       else if (/^\/cart\/?$/.test(location.pathname) || document.querySelector('.cart-summary')) koszyk();
     } catch (e) { /* zmiana wizualna nigdy nie wysadza strony */ }
